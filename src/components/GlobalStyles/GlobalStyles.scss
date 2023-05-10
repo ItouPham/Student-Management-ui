@@ -2,6 +2,10 @@
 @import '~bootstrap/scss/bootstrap';
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700;900&display=swap');
 
+:root {
+    --theme-color: rgb(23, 173, 160) !important;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -16,10 +20,18 @@ body {
 // button,
 // input,
 // [tabindex] {
-//     outline: none;
+//     outline-color: var(--theme-color);
 //     border: none;
 // }
 
 a[href] {
     text-decoration: none;
 }
+
+.text-theme {
+    color: var(--theme-color);
+}
+
+// .outline-theme{
+//     outline: rgb(23,173,160) !important;
+// }
