@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { useLocalStorage } from '../utils/useLocalStorage';
 import styles from './NavBar.module.scss';
 
-
 const cx = classNames.bind(styles);
 const NavBar = () => {
     const [jwt, setJwt] = useLocalStorage('', 'jwt');
@@ -21,15 +20,10 @@ const NavBar = () => {
                         <Link to="/" className={cx('text-light me-3', 'nav-item')}>
                             Home
                         </Link>
-                        {jwt ? (
-                            <Link to="/dashboard" className={cx('text-light me-3', 'nav-item')}>
-                                Dashboard
-                            </Link>
-                        ) : (
-                            <Link to="/login" className={cx('text-light me-3', 'nav-item')}>
-                                Login
-                            </Link>
-                        )}
+
+                        <Link to="/dashboard" className={cx('text-light me-3', 'nav-item')}>
+                            Dashboard
+                        </Link>
                     </Nav>
                 </Container>
             </Navbar>

@@ -5,62 +5,50 @@ import { Link, useParams } from 'react-router-dom';
 import { useLocalStorage } from '../../components/utils/useLocalStorage';
 
 const SaveUser = () => {
-    const username = useRef();
-    const password = useRef();
-    const fullName = useRef();
-    const email = useRef();
-    const age = useRef();
-    const roleIds = useRef([]);
     const [jwt, setJwt] = useLocalStorage('', 'jwt');
-    // const { userId } = useParams();
-    // const isAddPage = window.location.href.includes('add-user') ? true : false;
-
-    const user = {
-        username: username.current ,
-        password,
-        fullName,
-        email,
-        age,
-        roleIds,
-    };
-
-    // useEffect(() => {
-    //     if (!isAddPage) {
-    //         fetch(`/admin/user/${userId}`, {
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 Authorization: `Bearer ${jwt}`,
-    //             },
-    //             method: 'GET',
-    //         })
-    //             .then((response) => response.json())
-    //             .then((data) => {
-    //                 user.current = { ...data.objUser };
-    //                 console.log(user.current);
-    //             });
-    //     }
-    // }, []);
+    const { userId } = useParams();
+    const isAddPage = window.location.href.includes('add-user') ? true : false;
+    const user = useRef({ username: '', password: '', fullName: '', email: '', age: '', roleIds: '' });
+    // const updateUser = useRef();
+    useEffect(() => {
+        if (!isAddPage) {
+            fetch(`/admin/user/${userId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${jwt}`,
+                },
+                method: 'GET',
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    user.current = { ...data.objUser };
+                    console.log(user.current);
+                });
+        }
+    }, []);
 
     const handleCheck = (id) => {
-        const isChecked = roleIds.current.includes(id);
-        roleIds.current = isChecked ? roleIds.current.filter((roleId) => roleId !== id) : [...roleIds.current, id];
+        const isChecked = user.current.roleIds.includes(id);
+        user.current.roleIds = isChecked
+            ? user.current.roleIds.filter((roleId) => roleId !== id)
+            : [...user.current.roleIds, id];
     };
 
     const handleAddUser = (e) => {
         e.preventDefault();
-        console.log(user);
-        // fetch('admin/user', {
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         Authorization: `Bearer ${jwt}`,
-        //     },
-        //     method: 'POST',
-        //     body: JSON.stringify(user),
-        // })
-        //     .then((response) => response.json())
-        //     .then((data) => {
-        //         console.log(data);
-        //     });
+        console.log(user.current);
+        fetch('admin/user', {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${jwt}`,
+            },
+            method: 'POST',
+            body: JSON.stringify(user.current),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+            });
     };
 
     return (
@@ -68,7 +56,7 @@ const SaveUser = () => {
             <NavBar />
             <Container className="d-flex justify-content-center">
                 <Col className="bg-light mt-5 py-5 rounded mb-5" sm="9" md="5">
-                    <h1 className="text-center text-theme">Add User</h1>
+                    <h1 className="text-center text-theme">{isAddPage ? 'Add New' : 'Update'} User</h1>
                     <Form onSubmit={handleAddUser}>
                         <Form.Group className="d-flex justify-content-center mb-4">
                             <div className="w-75">
@@ -80,9 +68,10 @@ const SaveUser = () => {
                                     placeholder="Enter username"
                                     id="username"
                                     className="p-2"
-                                    ref={username}
-                                    // disabled={!isAddPage}
-                                    onChange={(e) => (username.current = e.target.value)}
+                                    // ref={usernameRef}
+                                    readOnly={!isAddPage}
+                                    // defaultValue={!isAddPage ? updateUser.current.username : ''}
+                                    onChange={(e) => (user.current.username = e.target.value)}
                                 />
                             </div>
                         </Form.Group>
@@ -96,8 +85,8 @@ const SaveUser = () => {
                                     type="password"
                                     id="password"
                                     className="p-2"
-                                    ref={password}
-                                    onChange={(e) => (password.current = e.target.value)}
+                                    // ref={passwordRef}
+                                    onChange={(e) => (user.current.password = e.target.value)}
                                 />
                             </div>
                         </Form.Group>
@@ -111,8 +100,8 @@ const SaveUser = () => {
                                     placeholder="Enter full name"
                                     id="fullName"
                                     className="p-2"
-                                    ref={fullName}
-                                    onChange={(e) => (fullName.current = e.target.value)}
+                                    // ref={fullNameRef}
+                                    onChange={(e) => (user.current.fullName = e.target.value)}
                                 />
                             </div>
                         </Form.Group>
@@ -123,11 +112,11 @@ const SaveUser = () => {
                                 </Form.Label>
                                 <Form.Control
                                     placeholder="Enter Email"
-                                    type="email"
+                                    type="text"
                                     id="email"
                                     className="p-2"
-                                    ref={email}
-                                    onChange={(e) => (email.current = e.target.value)}
+                                    // ref={emailRef}
+                                    onChange={(e) => (user.current.email = e.target.value)}
                                 />
                             </div>
                         </Form.Group>
@@ -141,8 +130,8 @@ const SaveUser = () => {
                                     type="number"
                                     id="age"
                                     className="p-2"
-                                    ref={age}
-                                    onChange={(e) => (age.current = e.target.value)}
+                                    // ref={ageRef}
+                                    onChange={(e) => (user.current.age = parseInt(e.target.value))}
                                 />
                             </div>
                         </Form.Group>
