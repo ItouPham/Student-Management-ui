@@ -17,12 +17,12 @@ body {
     text-rendering: optimizeSpeed;
 }
 
-// button,
-// input,
-// [tabindex] {
-//     outline-color: var(--theme-color);
-//     border: none;
-// }
+button,
+input,
+[tabindex] {
+    outline-color: var(--theme-color) !important;
+    // border: none !important;
+}
 
 a[href] {
     text-decoration: none;
@@ -30,6 +30,13 @@ a[href] {
 
 .text-theme {
     color: var(--theme-color);
+}
+
+.theme-hover {
+}
+
+.theme-hover:hover {
+    color: var(--theme-color) !important;
 }
 
 // .outline-theme{

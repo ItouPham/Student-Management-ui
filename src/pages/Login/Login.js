@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { useLocalStorage } from '../../components/utils/useLocalStorage';
-import axios from 'axios';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { Button, Col, Container, Form } from 'react-bootstrap';
 import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';
 
@@ -16,18 +15,6 @@ const Login = () => {
 
     const login = (e) => {
         e.preventDefault();
-        // axios
-        //     .post('http://localhost:8080/auth/login', {
-        //         username: `${usernameRef.current}`,
-        //         password: `${passwordRef.current}`,
-        //     })
-        //     .then((response) => {
-        //         setJwt(response.data.accessToken);
-        //     })
-        //     .catch((err) => {
-        //         console.log(err);
-        //     });
-
         const reqBody = {
             username: usernameRef.current,
             password: passwordRef.current,
