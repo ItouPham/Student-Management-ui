@@ -1,35 +1,32 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocalStorage } from '../../components/utils/useLocalStorage';
 import { Button, Col, Container, Form } from 'react-bootstrap';
 import classNames from 'classnames/bind';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import NavBar from '../../components/NavBar/NavBar';
 import styles from './Login.module.scss';
+import ajax from '../../components/utils/FetchService';
 
 const cx = classNames.bind(styles);
 const Login = () => {
+    let navigate = useNavigate();
     const [jwt, setJwt] = useLocalStorage('', 'jwt');
     const usernameRef = useRef('');
     const passwordRef = useRef('');
-
+    useEffect(() => {
+        if (jwt) navigate('/dashboard');
+    }, [jwt]);
+    
     const login = (e) => {
         e.preventDefault();
         const reqBody = {
             username: usernameRef.current,
             password: passwordRef.current,
         };
-        fetch('auth/login', {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify(reqBody),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                setJwt(data.accessToken);
-            });
+        ajax('auth/login', 'POST', null, reqBody).then((data) => {
+            setJwt(data.accessToken);
+        });
     };
     return (
         <>

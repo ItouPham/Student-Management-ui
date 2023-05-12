@@ -1,54 +1,55 @@
-import React, { useEffect, useRef } from 'react';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
-import NavBar from '../../components/NavBar/NavBar';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from '../../components/utils/useLocalStorage';
+import { useNavigate, useParams } from 'react-router-dom';
+import NavBar from '../../components/NavBar/NavBar';
+import { Button, Col, Container, Form } from 'react-bootstrap';
+import ajax from '../../components/utils/FetchService';
 
-const SaveUser = () => {
+const UpdateUser = () => {
+    let navigate = useNavigate();
     const [jwt, setJwt] = useLocalStorage('', 'jwt');
     const { userId } = useParams();
-    const isAddPage = window.location.href.includes('add-user') ? true : false;
-    const user = useRef({ username: '', password: '', fullName: '', email: '', age: '', roleIds: '' });
-    // const updateUser = useRef();
+    const [user, setUser] = useState({
+        username: '',
+        password: '',
+        email: '',
+        fullName: '',
+        age: '',
+        roleIds: [],
+        roles: [],
+    });
+
     useEffect(() => {
-        if (!isAddPage) {
-            fetch(`/admin/user/${userId}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${jwt}`,
-                },
-                method: 'GET',
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    user.current = { ...data.objUser };
-                    console.log(user.current);
-                });
-        }
+        ajax(`/admin/user/${userId}`, 'GET', jwt).then((responses) => {
+            const roleIds = [];
+            for (let role of responses.objUser.roles) {
+                roleIds.push(role.id);
+            }
+            setUser({ ...responses.objUser, roleIds: [...roleIds] });
+        });
     }, []);
 
-    const handleCheck = (id) => {
-        const isChecked = user.current.roleIds.includes(id);
-        user.current.roleIds = isChecked
-            ? user.current.roleIds.filter((roleId) => roleId !== id)
-            : [...user.current.roleIds, id];
+    const updateUser = (key, value) => {
+        const newUser = { ...user };
+        newUser[key] = value;
+        setUser(newUser);
     };
 
-    const handleAddUser = (e) => {
+    const handleCheck = (id) => {
+        const isChecked = user.roleIds.includes(id);
+        user.roleIds = isChecked
+            ? updateUser(
+                  'roleIds',
+                  user.roleIds.filter((roleId) => roleId !== id),
+              )
+            : updateUser('roleIds', [...user.roleIds, id]);
+    };
+
+    const handleUpdateUser = (e) => {
         e.preventDefault();
-        console.log(user.current);
-        fetch('admin/user', {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${jwt}`,
-            },
-            method: 'POST',
-            body: JSON.stringify(user.current),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log(data);
-            });
+        ajax(`/admin/user/${userId}`, 'PUT', jwt, user).then((data) => {
+            navigate('/dashboard', { state: { message: 'Update user successfully' } });
+        });
     };
 
     return (
@@ -56,8 +57,8 @@ const SaveUser = () => {
             <NavBar />
             <Container className="d-flex justify-content-center">
                 <Col className="bg-light mt-5 py-5 rounded mb-5" sm="9" md="5">
-                    <h1 className="text-center text-theme">{isAddPage ? 'Add New' : 'Update'} User</h1>
-                    <Form onSubmit={handleAddUser}>
+                    <h1 className="text-center text-theme">Update User</h1>
+                    <Form onSubmit={handleUpdateUser}>
                         <Form.Group className="d-flex justify-content-center mb-4">
                             <div className="w-75">
                                 <Form.Label htmlFor="username" className="fw-bold text-theme">
@@ -68,10 +69,9 @@ const SaveUser = () => {
                                     placeholder="Enter username"
                                     id="username"
                                     className="p-2"
-                                    // ref={usernameRef}
-                                    readOnly={!isAddPage}
-                                    // defaultValue={!isAddPage ? updateUser.current.username : ''}
-                                    onChange={(e) => (user.current.username = e.target.value)}
+                                    value={user.username}
+                                    readOnly
+                                    onChange={(e) => updateUser('username', e.target.value)}
                                 />
                             </div>
                         </Form.Group>
@@ -84,15 +84,15 @@ const SaveUser = () => {
                                     placeholder="Enter password"
                                     type="password"
                                     id="password"
+                                    autoComplete="true"
                                     className="p-2"
-                                    // ref={passwordRef}
-                                    onChange={(e) => (user.current.password = e.target.value)}
+                                    onChange={(e) => updateUser('password', e.target.value)}
                                 />
                             </div>
                         </Form.Group>
                         <Form.Group className="d-flex justify-content-center mb-4">
                             <div className="w-75">
-                                <Form.Label htmlFor="username" className="fw-bold text-theme">
+                                <Form.Label htmlFor="fullName" className="fw-bold text-theme">
                                     Full name
                                 </Form.Label>
                                 <Form.Control
@@ -100,14 +100,14 @@ const SaveUser = () => {
                                     placeholder="Enter full name"
                                     id="fullName"
                                     className="p-2"
-                                    // ref={fullNameRef}
-                                    onChange={(e) => (user.current.fullName = e.target.value)}
+                                    value={user.fullName}
+                                    onChange={(e) => updateUser('fullName', e.target.value)}
                                 />
                             </div>
                         </Form.Group>
                         <Form.Group className="d-flex justify-content-center mb-4">
                             <div className="w-75">
-                                <Form.Label htmlFor="password" className="fw-bold text-theme">
+                                <Form.Label htmlFor="email" className="fw-bold text-theme">
                                     Email
                                 </Form.Label>
                                 <Form.Control
@@ -115,14 +115,14 @@ const SaveUser = () => {
                                     type="text"
                                     id="email"
                                     className="p-2"
-                                    // ref={emailRef}
-                                    onChange={(e) => (user.current.email = e.target.value)}
+                                    value={user.email}
+                                    onChange={(e) => updateUser('email', e.target.value)}
                                 />
                             </div>
                         </Form.Group>
                         <Form.Group className="d-flex justify-content-center mb-4">
                             <div className="w-75">
-                                <Form.Label htmlFor="password" className="fw-bold text-theme">
+                                <Form.Label htmlFor="age" className="fw-bold text-theme">
                                     Age
                                 </Form.Label>
                                 <Form.Control
@@ -130,30 +130,22 @@ const SaveUser = () => {
                                     type="number"
                                     id="age"
                                     className="p-2"
-                                    // ref={ageRef}
-                                    onChange={(e) => (user.current.age = parseInt(e.target.value))}
+                                    value={user.age}
+                                    onChange={(e) => updateUser('age', e.target.value)}
                                 />
                             </div>
                         </Form.Group>
                         <Form.Group className="d-flex justify-content-center mb-4">
                             <div className="w-75">
-                                <Form.Label htmlFor="password" className="fw-bold text-theme">
+                                <Form.Label htmlFor="roles" className="fw-bold text-theme">
                                     Roles
                                 </Form.Label>
                                 <Form.Check
                                     type="checkbox"
                                     id="admin-checkbox"
                                     label="ADMIN"
+                                    checked={user.roleIds.includes(1)}
                                     value="1"
-                                    onChange={(e) => {
-                                        handleCheck(parseInt(e.target.value));
-                                    }}
-                                />
-                                <Form.Check
-                                    type="checkbox"
-                                    id="teacher-checkbox"
-                                    label="TEACHER"
-                                    value="2"
                                     onChange={(e) => {
                                         handleCheck(parseInt(e.target.value));
                                     }}
@@ -162,6 +154,17 @@ const SaveUser = () => {
                                     type="checkbox"
                                     id="student-checkbox"
                                     label="STUDENT"
+                                    checked={user.roleIds.includes(2)}
+                                    value="2"
+                                    onChange={(e) => {
+                                        handleCheck(parseInt(e.target.value));
+                                    }}
+                                />
+                                <Form.Check
+                                    type="checkbox"
+                                    id="teacher-checkbox"
+                                    label="TEACHER"
+                                    checked={user.roleIds.includes(3)}
                                     value="3"
                                     onChange={(e) => {
                                         handleCheck(parseInt(e.target.value));
@@ -171,7 +174,7 @@ const SaveUser = () => {
                         </Form.Group>
                         <Col className="text-center">
                             <Button type="submit" size="lg" variant="success" className="mb-4">
-                                ADD
+                                UPDATE
                             </Button>
                         </Col>
                     </Form>
@@ -181,4 +184,4 @@ const SaveUser = () => {
     );
 };
 
-export default SaveUser;
+export default UpdateUser;
