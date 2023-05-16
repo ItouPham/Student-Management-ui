@@ -39,6 +39,14 @@ a[href] {
     color: var(--theme-color) !important;
 }
 
+.theme-background {
+}
+
+.theme-background:hover {
+    background-color: var(--theme-color) !important;
+    color: black;
+    border: 1px solid var(--theme-color) !important;
+}
 // .outline-theme{
 //     outline: rgb(23,173,160) !important;
 // }

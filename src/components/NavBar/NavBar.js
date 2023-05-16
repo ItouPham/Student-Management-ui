@@ -20,10 +20,22 @@ const NavBar = () => {
                         <Link to="/" className={cx('text-light me-3', 'nav-item')}>
                             Home
                         </Link>
-
                         <Link to="/dashboard" className={cx('text-light me-3', 'nav-item')}>
                             Dashboard
                         </Link>
+                        {jwt ? (
+                            <Link
+                                to="/login"
+                                onClick={() => {
+                                    localStorage.setItem('jwt', null);
+                                }}
+                                className={cx('text-light me-3', 'nav-item')}
+                            >
+                                Logout
+                            </Link>
+                        ) : (
+                            <></>
+                        )}
                     </Nav>
                 </Container>
             </Navbar>

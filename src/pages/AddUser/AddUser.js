@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import React, { useRef } from 'react';
+import { Button, Col, Container, Form } from 'react-bootstrap';
 import NavBar from '../../components/NavBar/NavBar';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from '../../components/utils/useLocalStorage';
 import ajax from '../../components/utils/FetchService';
 

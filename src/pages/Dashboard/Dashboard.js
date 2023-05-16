@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from '../../components/utils/useLocalStorage';
 import NavBar from '../../components/NavBar/NavBar';
-import { Alert, Button, Container, OverlayTrigger, Table, Tooltip } from 'react-bootstrap';
+import { Alert, Button, Container, Modal, OverlayTrigger, Table, Tooltip } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import { FaEdit, FaPlusSquare, FaTrash } from 'react-icons/fa';
 import ajax from '../../components/utils/FetchService';
@@ -10,22 +10,35 @@ const Dashboard = () => {
     const [jwt, setJwt] = useLocalStorage('', 'jwt');
     const [users, setUsers] = useState([]);
     const location = useLocation(null);
-    useEffect(() => {
+
+    const [showModal, setShowModal] = useState({ status: false, userId: '' });
+
+    const handleCloseModal = () => setShowModal({ status: false, userId: '' });
+
+    const handleShowModal = (id) => setShowModal({ status: true, userId: id });
+
+    const getListUser = () => {
         ajax('admin/user', 'GET', jwt).then((data) => {
             setUsers(data.listUser);
         });
+    };
+
+    useEffect(() => {
+        getListUser();
     }, []);
+
     const handleDeleteUser = (id) => {
         ajax(`admin/user/${id}`, 'DELETE', jwt).then((data) => {
-            console.log(data);
-            setUsers(() => users.filter((user) => user.id !== id));
+            handleCloseModal();
+            getListUser();
+            location.state = { message: 'Delete user successfully' };
         });
     };
     return (
         <>
             <NavBar />
-            <Container>
-                <h1>User List</h1>
+            <Container className='mt-5'>
+                <h1 className='text-center'>User List</h1>
                 {location.state ? (
                     <Alert variant="success" dismissible>
                         {location.state.message}
@@ -76,7 +89,7 @@ const Dashboard = () => {
                                         delay={{ show: 250, hide: 400 }}
                                         overlay={<Tooltip>Delete User</Tooltip>}
                                     >
-                                        <Link onClick={() => handleDeleteUser(user.id)}>
+                                        <Link onClick={() => handleShowModal(user.id)}>
                                             <FaTrash className="text-danger theme-hover my-2" size="2rem" />
                                         </Link>
                                     </OverlayTrigger>
@@ -85,6 +98,20 @@ const Dashboard = () => {
                         ))}
                     </tbody>
                 </Table>
+                <Modal show={showModal.status} onHide={handleCloseModal} animation={false}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Delete</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>Do you sure want to delete the user with id is {showModal.userId}</Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="danger" onClick={() => handleDeleteUser(showModal.userId)}>
+                            Yes
+                        </Button>
+                        <Button variant="secondary" onClick={handleCloseModal}>
+                            Cancel
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </>
     );
