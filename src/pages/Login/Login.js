@@ -29,7 +29,7 @@ const Login = () => {
             .then((response) => {
                 if (response.status === 200) {
                     return response.json().then((data) => {
-                        setJwt(data.accessToken);
+                        setJwt(data.authResponse.accessToken);
                     });
                 } else {
                     return setIsInvalid(true);
