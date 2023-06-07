@@ -11,7 +11,7 @@ const Login = () => {
     let navigate = useNavigate();
     const [jwt, setJwt] = useLocalStorage('', 'jwt');
     const user = useRef({ username: '', password: '' });
-    const [isInvalid, setIsInvalid] = useState(false);
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         if (jwt) navigate('/dashboard');
@@ -32,7 +32,9 @@ const Login = () => {
                         setJwt(data.authResponse.accessToken);
                     });
                 } else {
-                    return setIsInvalid(true);
+                    return response.json().then((data) => {
+                        setMessage(data.message);
+                    });
                 }
             })
             .catch((mess) => {
@@ -44,13 +46,9 @@ const Login = () => {
             <NavBar />
             <div className={cx('wrapper')}>
                 <Container className="d-flex justify-content-center">
-                    <Col className="bg-light mt-5 py-5 rounded" sm="9" md="5">
+                    <Col className="bg-light mt-5 py-5 rounded" sm="10" md="8" lg="5">
                         <h1 className="text-center text-theme">Login</h1>
-                        {isInvalid ? (
-                            <div className="text-center text-danger">Invalid Username or Password</div>
-                        ) : (
-                            <></>
-                        )}
+                        {message !== '' ? <div className="text-center text-danger">{message}</div> : <></>}
                         <Form onSubmit={login}>
                             <Form.Group className="d-flex justify-content-center mb-4">
                                 <div className="w-75">

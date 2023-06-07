@@ -17,18 +17,12 @@ const PrivateRoute = ({ children }) => {
     } else {
         return <Navigate to="/login" />;
     }
-    if (isLoading) {
-        return <div>Loading....</div>;
-    }
 
-    if (isValid === true) {
-        return children;
-    } else {
-        navigate('/login');
+    if (isValid === false) {
         localStorage.setItem('jwt', null);
     }
 
-    // return isLoading ? <div>Loading....</div> : isValid === true ? children : <Navigate to="/login" />;
+    return isLoading ? <div>Loading....</div> : isValid === true ? children : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;
